@@ -98,6 +98,17 @@ namespace Rishi.Combat
             return true;
         }
 
+        public int LevelOf(WeaponId id) { int i = IndexOf(id); return i >= 0 ? slots[i].level : 0; }
+
+        /// <summary>Save se wapas lana (Continue) — bina events ke, seedha level.</summary>
+        public void RestoreLevel(WeaponId id, int level)
+        {
+            int i = IndexOf(id);
+            if (i < 0) return;
+            slots[i].level = Mathf.Clamp(level, 0, levelMultiplier.Length - 1);
+            if (i == _index) ApplyMultiplier();
+        }
+
         // ---------------- Internal ----------------
         void Equip(int index, bool notify)
         {

@@ -21,6 +21,8 @@ namespace Rishi.World
     {
         [SerializeField] Transform respawnPoint;
         [SerializeField] float fallDamage = 10f; // GDD
+        [Tooltip("true = aakhri jalaya deepak (checkpoint) par wapas. Boss arena me false — GDD: arena ke kinare par.")]
+        [SerializeField] bool useCheckpoint = true;
 
         public Transform RespawnPoint { get => respawnPoint; set => respawnPoint = value; }
 
@@ -33,9 +35,11 @@ namespace Rishi.World
         void OnTriggerEnter(Collider other)
         {
             var player = other.GetComponent<PlayerController>();
-            if (player == null || respawnPoint == null) return; // sirf Rishi ke liye
+            if (player == null) return; // sirf Rishi ke liye
+            Transform point = useCheckpoint && Checkpoint.Latest != null ? Checkpoint.Latest.transform : respawnPoint;
+            if (point == null) return;
 
-            player.Teleport(respawnPoint.position, respawnPoint.rotation);
+            player.Teleport(point.position, point.rotation);
 
             // Pehle teleport, phir damage: agar damage se mar gaye to bhi body
             // khaai me nahi, respawn par hogi (M4 ka game-over screen wahi se chalega).

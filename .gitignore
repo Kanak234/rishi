@@ -44,3 +44,4 @@ crashlytics-build.properties
 # Mixamo files aane par ye folder hat jayega. Clone karne wale: Tools ▸ RISHI ▸ Setup Mixamo Rishi.
 /Assets/ThirdParty/StarterAssets/
 /Assets/ThirdParty/StarterAssets.meta
+mono_crash.*

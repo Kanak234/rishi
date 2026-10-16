@@ -6,11 +6,35 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Rishi/Scenes/MainMenu.unity
+    guid: d4b1fce170354687bae58d2aaeeacac9
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_1.unity
+    guid: 812a2ef02166890a88b8b19e469507e9
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_2.unity
+    guid: e610980056f108b7b9f37b2706d51832
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_3.unity
+    guid: 137e984f6ae2d332b9251a07b3bbc33d
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_4.unity
+    guid: 64fd3f9b8c40acac19f48e2a392b3b8d
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_5.unity
+    guid: 0f5abdff90c97300690a651c61246588
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_6.unity
+    guid: 148946ceabe38e171bbb81cd2518f247
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_7.unity
+    guid: 201641a4f5fc6ef3899ce0bec9ddaaca
+  - enabled: 1
+    path: Assets/_Rishi/Scenes/Mission_8.unity
+    guid: bad0f2ac580be93edbc76d14f3ed3775
+  - enabled: 0
     path: Assets/_Rishi/Scenes/M2_TestArena.unity
     guid: 90e16cb58dc2a1ad2a6d286245d8db9b
-  - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

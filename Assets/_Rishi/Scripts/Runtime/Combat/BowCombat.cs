@@ -10,7 +10,7 @@
 //         Heavy hold (RMB / Y)  → charge, chhodo to bhaari teer
 //       Dodge / girna aim aur charge cancel karta hai.
 // AAGE: RishiInput se input, PlayerController ke MoveScale/LockFacing/JumpLocked
-//       se chalna, Arrow pool se teer, Arrow → Hurtbox.ReceiveHit().
+//       se chalna, ArrowPool se teer, Arrow → Hurtbox.ReceiveHit().
 //       Fired/AimChanged events PlayerAnimator (bow clips) ke liye.
 // =====================================================================
 using System;
@@ -41,6 +41,7 @@ namespace Rishi.Combat
         [SerializeField] float aimMoveScale = 0.4f;    // aim me dheere chalo (strafe)
         [SerializeField] float autoAimRange = 16f;
         [SerializeField] float autoAimAngle = 35f;     // bina aim ke: saamne itne degree ke cone me asur dhoondho
+        [SerializeField] float verticalAssistAngle = 12f; // flat nishane ke itne degree me asur ho to teer uski unchai par
         [SerializeField] float muzzleHeight = 1.4f;    // kandhe ki unchai
         [SerializeField] float muzzleForward = 0.6f;   // CharacterController (radius 0.4) ke bahar se teer nikle
 
@@ -61,8 +62,7 @@ namespace Rishi.Combat
         PlayerController _pc;
         RishiInput _input;
         Health _health;
-        Arrow[] _pool;
-        Transform _poolRoot;
+        ArrowPool _pool;
         float _nextFire;
         bool _charging;
         float _chargeTimer;
@@ -81,25 +81,11 @@ namespace Rishi.Combat
 
         void OnEnable()  { _pc.StateChanged += OnMoveStateChanged; _health.Died += ResetBow; }
         void OnDisable() { _pc.StateChanged -= OnMoveStateChanged; _health.Died -= ResetBow; ResetBow(); }
-        void OnDestroy() { if (_poolRoot != null) Destroy(_poolRoot.gameObject); }
+        void OnDestroy() => _pool?.Dispose();
 
         void BuildPool()
         {
-            // Pool Rishi ka child nahi — warna Rishi ghoome to udte teer bhi ghoomte.
-            _poolRoot = new GameObject("ArrowPool (Rishi)").transform;
-            _pool = new Arrow[poolSize];
-            for (int i = 0; i < poolSize; i++)
-            {
-                // Placeholder teer: patla lamba cube (M4 me asli model).
-                var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                go.name = "Arrow_" + i;
-                Destroy(go.GetComponent<Collider>()); // teer khud collider nahi — ray se hit dhoondhta hai
-                go.transform.SetParent(_poolRoot, false);
-                go.transform.localScale = new Vector3(0.04f, 0.04f, 0.7f);
-                if (arrowMaterial != null) go.GetComponent<MeshRenderer>().sharedMaterial = arrowMaterial;
-                go.SetActive(false);
-                _pool[i] = go.AddComponent<Arrow>();
-            }
+            _pool = new ArrowPool("ArrowPool (Rishi)", poolSize, arrowMaterial, new Vector3(0.04f, 0.04f, 0.7f));
         }
 
         // =================================================================
@@ -248,14 +234,38 @@ namespace Rishi.Combat
             return bestDir;
         }
 
+        /// <summary>
+        /// Nishana zameen par flat hota hai (mouse plane / stick), par Vayu-pishach hawa me hai.
+        /// Usi disha (±assist angle) me koi asur ho to teer ko uske beech ki taraf upar/neeche jhuka do.
+        /// </summary>
+        Vector3 VerticalAssist(Vector3 flatDir, Vector3 muzzle)
+        {
+            int n = Physics.OverlapSphereNonAlloc(muzzle, autoAimRange * 1.5f, _overlap, hitMask, QueryTriggerInteraction.Ignore);
+            float cosLimit = Mathf.Cos(verticalAssistAngle * Mathf.Deg2Rad);
+            float best = float.MaxValue;
+            Vector3 result = flatDir;
+            for (int i = 0; i < n; i++)
+            {
+                Hurtbox hb = _overlap[i].GetComponentInParent<Hurtbox>();
+                if (hb == null || hb.Team == Team.Player || (hb.Health != null && hb.Health.IsDead)) continue;
+                Vector3 to = _overlap[i].bounds.center - muzzle;
+                Vector3 flat = new Vector3(to.x, 0f, to.z);
+                float d = flat.magnitude;
+                if (d < 0.5f || Vector3.Dot(flat / d, flatDir) < cosLimit) continue;
+                if (d < best) { best = d; result = to.normalized; }
+            }
+            return result;
+        }
+
         // ---------------- Fire ----------------
         void Shoot(float damage, float knockback, bool charged)
         {
-            Arrow a = GetFreeArrow();
+            Arrow a = _pool.Get();
             if (a == null) return; // edge case: pool khatam (bahut tez spam) — shot skip, crash nahi
 
             Vector3 dir = _aimDir.sqrMagnitude > 0.01f ? _aimDir : transform.forward;
             Vector3 muzzle = transform.position + Vector3.up * muzzleHeight + dir * muzzleForward;
+            dir = VerticalAssist(dir, muzzle); // Vayu-pishach upar udta hai — seedha teer uske neeche se nikal jaata
             var info = new HitInfo
             {
                 Damage = damage * DamageMultiplier,
@@ -271,10 +281,5 @@ namespace Rishi.Combat
             Fired?.Invoke(charged);
         }
 
-        Arrow GetFreeArrow()
-        {
-            for (int i = 0; i < _pool.Length; i++) if (!_pool[i].InUse) return _pool[i];
-            return null;
-        }
     }
 }

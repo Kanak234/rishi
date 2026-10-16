@@ -7,8 +7,8 @@
 // KYA:  Esc / Start se pause toggle. Window ka focus jaane par apne aap
 //       pause. Time.timeScale = 0 karke poori duniya rok deta hai.
 // AAGE: PlayerController timeScale 0 dekh ke input ignore karta hai.
-//       M6 me UIManager ka pause menu "Paused" event sun ke dikhega;
-//       abhi ke liye screen par simple text aata hai.
+//       PauseMenu (UI) "PauseChanged" sun ke menu dikhata hai aur
+//       wahi Esc se resume karta hai.
 // =====================================================================
 using System;
 using UnityEngine;
@@ -19,7 +19,10 @@ namespace Rishi.Core
     public class GamePause : MonoBehaviour
     {
         public static bool IsPaused { get; private set; }
-        public static event Action<bool> PauseChanged; // M6 ka pause menu yahan subscribe karega
+        public static event Action<bool> PauseChanged; // PauseMenu yahan subscribe karta hai
+
+        /// <summary>Cutscene / game over / jeet ke time pause toggle band (dono ek saath timeScale na chhedein).</summary>
+        public static bool Locked { get; set; }
 
         InputAction _toggle;
 
@@ -33,18 +36,19 @@ namespace Rishi.Core
 
         void OnEnable()  => _toggle.Enable();
         void OnDisable() => _toggle.Disable();
-        void OnDestroy() { _toggle.Dispose(); SetPaused(false); } // scene badle to game atka na rahe
+        void OnDestroy() { _toggle.Dispose(); SetPaused(false); Locked = false; } // scene badle to game atka na rahe
 
         void Update()
         {
-            if (_toggle.WasPressedThisFrame()) SetPaused(!IsPaused);
+            // Pause menu khula ho to Esc wahi sambhalta hai (settings se wapas, phir resume).
+            if (_toggle.WasPressedThisFrame() && !Locked && !IsPaused) SetPaused(true);
         }
 
         // Alt-Tab / doosri window par click → pause. Wapas aane par khud resume NAHI
         // (player ko ready hone ka mauka mile, wo khud Esc dabaye).
         void OnApplicationFocus(bool hasFocus)
         {
-            if (!hasFocus && !Application.isEditor) SetPaused(true);
+            if (!hasFocus && !Application.isEditor && !Locked) SetPaused(true);
         }
 
         public static void SetPaused(bool paused)
@@ -54,14 +58,6 @@ namespace Rishi.Core
             Time.timeScale = paused ? 0f : 1f;
             AudioListener.pause = paused; // pause me awaaz bhi ruke
             PauseChanged?.Invoke(paused);
-        }
-
-        void OnGUI()
-        {
-            // Temporary pause text — M6 me asli Sohrai-style menu aayega.
-            if (!IsPaused) return;
-            var style = new GUIStyle(GUI.skin.label) { fontSize = 42, alignment = TextAnchor.MiddleCenter };
-            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), "PAUSED  (Esc / Start)", style);
         }
     }
 }

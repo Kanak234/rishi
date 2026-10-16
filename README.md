@@ -6,25 +6,34 @@
 
 On the night of Navami, Tamasur rises from the darkness beneath the Damodar and begins extinguishing the eternal flames of the tirthas. Rishi, a young warrior from a riverside village, sets out to rekindle them and rescue his guru.
 
-`Status: Milestone M2 — movement prototype`
+`Status: v1.0.0 — 6 levels, 8 missions (Linux build)`
 
 </div>
 
 ---
 
-## Features (vertical slice — in progress)
+## Features
 
-- [x] Character movement: run, jump, coyote time
-- [x] Dodge roll with invincibility frames (0.4 s) and cooldown
-- [x] Wall-running (2 s) with wall-jump
-- [x] Ledge grab & climb, with fall-on-hit
-- [x] Isometric follow camera
-- [x] Pause + auto-pause on focus loss
-- [ ] Combat: 3-hit combo, heavy attack, Trishul & Dhanush (M3)
-- [ ] Asur enemies: Chhaya-bhoot, Pashan-rakshas, Vayu-pishach (M3)
-- [ ] Rajrappa level (M4)
-- [ ] Andhvir boss fight + Sohrai-style cutscenes (M5)
-- [ ] Menus, HUD, Linux & Windows builds (M6)
+- 6 levels, 8 connected missions: Damodar Gaon → Rajrappa → Kashi → Hampi → Ellora → Tamas-lok
+- 3 bosses with 3 phases each: Andhvir, Shilaasur, Tamasur
+- Sohrai-style story slides before and after every mission
+- Run, jump, dodge roll with i-frames, wall-run, ledge climb
+- Trishul 3-hit combo + charged heavy attack; Dhanush with aim and charged arrows
+- Enemies: Chhaya-bhoot, Pashan-rakshas (guard), Vayu-pishach (flying archers)
+- Checkpoint deepaks with save/continue, Jyoti upgrades, mission select
+- Main menu, pause, settings (volume, graphics, subtitles, text size, camera shake), HUD
+- Procedural music and sound effects
+
+## Missions
+
+| Level | Mission |
+| --- | --- |
+| 1 · Damodar Gaon | 1. Navami ki Raat |
+| 2 · Rajrappa | 2. Sangam ki Chattanein · 3. Chhinnamastika ka Aangan (boss: Andhvir) |
+| 3 · Kashi | 4. Deepon ki Seedhiyan · 5. Ganga Aarti ki Raksha |
+| 4 · Hampi | 6. Vijayanagara ke Khandahar (boss: Shilaasur) |
+| 5 · Ellora | 7. Kailasa ki Gufayein |
+| 6 · Tamas-lok | 8. Damodar ke Neeche (boss: Tamasur) |
 
 ## Controls
 
@@ -45,7 +54,8 @@ On the night of Navami, Tamasur rises from the darkness beneath the Damodar and 
 1. Install **Unity 6 LTS** via Unity Hub (Linux or Windows).
 2. Clone with Git LFS: `git lfs install && git clone https://github.com/Kanak234/rishi.git`
 3. Open the folder in Unity Hub → **Add project from disk**.
-4. Menu **Tools ▸ RISHI ▸ Build M2 Test Arena**, then press **Play**.
+4. Menu **Tools ▸ RISHI ▸ Build All Scenes**, open `Assets/_Rishi/Scenes/MainMenu.unity`, press **Play**.
+5. Release builds: **Tools ▸ RISHI ▸ Release ▸ Build Linux + Windows** (output in `Builds/`).
 
 ## Tech
 

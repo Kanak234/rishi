@@ -23,13 +23,25 @@ namespace Rishi.CameraSystem
         [SerializeField] Transform target;
         [SerializeField, Range(20f, 80f)] float pitch = 45f;   // kitna upar se dekhe
         [SerializeField] float yaw = 45f;                      // kis kone se dekhe
-        [SerializeField] float distance = 14f;                 // kitni door
+        [SerializeField] float distance = 12f;                 // kitni door (14 par Rishi bahut chhota dikhta tha)
         [SerializeField] float heightOffset = 1.2f;            // Rishi ke pairon ki jagah seene ko dekhe
         [SerializeField] float smoothTime = 0.15f;
 
         Vector3 _vel; // SmoothDamp ka internal state
+        Vector3 _base; // shake se pehle ki jagah — shake smoothing me na ghule
+        static float s_shakeAmount, s_shakeUntil;
 
         public Transform Target { get => target; set => target = value; }
+        /// <summary>Boss arena me camera thoda door (poora akhada dikhe). LevelDirector set karta hai.</summary>
+        public float Distance { get => distance; set => distance = value; }
+
+        /// <summary>Bhaari vaar / boss slam par jhatka. GDD accessibility: settings me band ho sakta hai.</summary>
+        public static void Shake(float amount, float seconds)
+        {
+            if (!Rishi.Core.GameSettings.CameraShake) return;
+            s_shakeAmount = Mathf.Max(amount, Time.time < s_shakeUntil ? s_shakeAmount : 0f);
+            s_shakeUntil = Time.time + seconds;
+        }
 
         void LateUpdate()
         {
@@ -40,7 +52,10 @@ namespace Rishi.CameraSystem
             Vector3 focus = target.position + Vector3.up * heightOffset;
             Vector3 desired = focus - rot * Vector3.forward * distance;
 
-            transform.position = Vector3.SmoothDamp(transform.position, desired, ref _vel, smoothTime);
+            if (_base == Vector3.zero) _base = transform.position;
+            _base = Vector3.SmoothDamp(_base, desired, ref _vel, smoothTime);
+            Vector3 shake = Time.time < s_shakeUntil ? Random.insideUnitSphere * s_shakeAmount * ((s_shakeUntil - Time.time) * 4f) : Vector3.zero;
+            transform.position = _base + shake;
             transform.rotation = rot;
         }
 
@@ -49,8 +64,8 @@ namespace Rishi.CameraSystem
         {
             if (target == null) return;
             Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
-            transform.SetPositionAndRotation(
-                target.position + Vector3.up * heightOffset - rot * Vector3.forward * distance, rot);
+            _base = target.position + Vector3.up * heightOffset - rot * Vector3.forward * distance;
+            transform.SetPositionAndRotation(_base, rot);
             _vel = Vector3.zero;
         }
     }

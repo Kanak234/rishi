@@ -22,6 +22,7 @@ using Rishi.Combat;
 using Rishi.Player;
 using Rishi.World;
 using Rishi.CameraSystem;
+using Rishi.Enemies;
 
 namespace Rishi.EditorTools
 {
@@ -116,6 +117,7 @@ namespace Rishi.EditorTools
             // --- M3 combat: Rishi par CombatSystem + Hurtbox, aur akhade ke putle ---
             AddCombatTest(root, stone, sona);
             AddWeaponTest(root, stone, sona, geru);
+            AddEnemyTest(sona);
 
             // --- Camera ---
             var camGo = new GameObject("Main Camera");
@@ -226,7 +228,86 @@ namespace Rishi.EditorTools
             }
         }
 
-        static GameObject FindOrBuild(Transform parent, string name, System.Func<GameObject> build)
+        [MenuItem("Tools/RISHI/Add M3 Enemies Test (current scene)")]
+        public static void AddEnemyTestToOpenScene()
+        {
+            AddEnemyTest(Mat("M_Sona", Color.yellow));
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("[RISHI] M3 asur test ready → peeche (z = -9) 3 Chhaya-bhoot, baayein Pashan-rakshas, daayein Vayu-pishach.");
+        }
+
+        static void AddEnemyTest(Material sona)
+        {
+            // GDD art: asur hamesha neele-baingani andhkar me.
+            Material asur   = Mat("M_Asur",   new Color(0.18f, 0.10f, 0.32f));
+            Material pashan = Mat("M_Pashan", new Color(0.30f, 0.27f, 0.36f));
+
+            // Max HP GDD me nahi tha — M3 me tay: Chhaya 30 (2 light combo ka hissa), Pashan 120, Vayu 40.
+            for (int i = 0; i < 3; i++)
+                GroundEnemy<ChhayaBhoot>($"Chhaya_Bhoot_{i + 1}", new Vector3(-6f + i * 1.8f, 0.05f, -9f - (i % 2)), 0.8f, 30f, asur);
+            GroundEnemy<PashanRakshas>("Pashan_Rakshas", new Vector3(-8f, 0.05f, 8f), 1.4f, 120f, pashan);
+
+            if (GameObject.Find("Vayu_Pishach") == null)
+            {
+                var v = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                v.name = "Vayu_Pishach";
+                v.transform.position = new Vector3(10f, 3f, -2f);
+                v.transform.localScale = Vector3.one * 0.9f;
+                v.GetComponent<MeshRenderer>().sharedMaterial = asur;
+                // Pankh (dikhawa) — collider nahi
+                Part(v.transform, PrimitiveType.Cube, new Vector3(-0.8f, 0.1f, 0f), new Vector3(1.0f, 0.05f, 0.4f), asur);
+                Part(v.transform, PrimitiveType.Cube, new Vector3(0.8f, 0.1f, 0f), new Vector3(1.0f, 0.05f, 0.4f), asur);
+                SetMaxHp(v.AddComponent<Health>(), 40f);
+                v.AddComponent<Hurtbox>();                   // SphereCollider hi hurtbox
+                var vp = v.AddComponent<VayuPishach>();
+                var so = new SerializedObject(vp);
+                so.FindProperty("arrowMaterial").objectReferenceValue = asur;
+                so.FindProperty("body").objectReferenceValue = v.GetComponent<MeshRenderer>();
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+
+        internal static GameObject GroundEnemy<T>(string name, Vector3 pos, float size, float hp, Material m) where T : EnemyAI
+        {
+            var existing = GameObject.Find(name);
+            if (existing != null) return existing; // dobara chalane par duplicate nahi
+            var root = new GameObject(name);
+            root.transform.position = pos;
+
+            // Pivot pairon par (Rishi jaisa); body capsule child.
+            var bodyGo = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            Object.DestroyImmediate(bodyGo.GetComponent<Collider>()); // CharacterController hi collider/hurtbox
+            bodyGo.name = "Body";
+            bodyGo.transform.SetParent(root.transform, false);
+            bodyGo.transform.localPosition = new Vector3(0f, size, 0f);
+            bodyGo.transform.localScale = Vector3.one * size;
+            bodyGo.GetComponent<MeshRenderer>().sharedMaterial = m;
+            // Aankhein (sona) — kis taraf dekh raha hai
+            Part(bodyGo.transform, PrimitiveType.Cube, new Vector3(0f, 0.45f, 0.42f), new Vector3(0.5f, 0.08f, 0.1f), Mat("M_Sona", Color.yellow));
+
+            var cc = root.AddComponent<CharacterController>();
+            cc.height = 2f * size; cc.radius = 0.4f * size; cc.center = new Vector3(0f, size, 0f);
+            cc.stepOffset = Mathf.Min(0.4f, cc.height * 0.3f);
+
+            SetMaxHp(root.AddComponent<Health>(), hp);
+            root.AddComponent<Hurtbox>();
+            var ai = root.AddComponent<T>();
+            var so = new SerializedObject(ai);
+            so.FindProperty("body").objectReferenceValue = bodyGo.GetComponent<MeshRenderer>();
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return root;
+        }
+
+        internal static void SetMaxHp(Health h, float hp)
+        {
+            var so = new SerializedObject(h);
+            so.FindProperty("maxHealth").floatValue = hp;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        internal static GameObject FindOrBuild(Transform parent, string name, System.Func<GameObject> build)
         {
             Transform t = parent.Find(name);
             if (t != null) return t.gameObject; // dobara chalane par duplicate nahi
@@ -237,7 +318,7 @@ namespace Rishi.EditorTools
         }
 
         // Trishul: lamba danda + upar teen nok. Colliders hata do — hathiyar physics me na takraye.
-        static GameObject BuildTrishul(Material sona, Material geru)
+        internal static GameObject BuildTrishul(Material sona, Material geru)
         {
             var root = new GameObject("Weapon_Trishul");
             Part(root.transform, PrimitiveType.Cylinder, new Vector3(0f, 0.3f, 0f), new Vector3(0.035f, 0.75f, 0.035f), geru);
@@ -249,7 +330,7 @@ namespace Rishi.EditorTools
         }
 
         // Dhanush: patla lamba dhanush (do jhuke hisse) — placeholder.
-        static GameObject BuildDhanush(Material geru)
+        internal static GameObject BuildDhanush(Material geru)
         {
             var root = new GameObject("Weapon_Dhanush");
             var top = Part(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.3f, -0.05f), new Vector3(0.03f, 0.62f, 0.03f), geru);
@@ -259,7 +340,7 @@ namespace Rishi.EditorTools
             return root;
         }
 
-        static Transform Part(Transform parent, PrimitiveType type, Vector3 pos, Vector3 scale, Material m)
+        internal static Transform Part(Transform parent, PrimitiveType type, Vector3 pos, Vector3 scale, Material m)
         {
             var go = GameObject.CreatePrimitive(type);
             Object.DestroyImmediate(go.GetComponent<Collider>());
@@ -300,7 +381,7 @@ namespace Rishi.EditorTools
         }
 
         // ---------------- helpers ----------------
-        static void AddCapsuleBody(Transform root, Material sona, Material geru)
+        internal static void AddCapsuleBody(Transform root, Material sona, Material geru)
         {
             // Capsule mesh child ko 1 m upar rakha (pivot pairon par rahe).
             var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -320,7 +401,7 @@ namespace Rishi.EditorTools
             nose.GetComponent<MeshRenderer>().sharedMaterial = geru;
         }
 
-        static GameObject Block(string name, Vector3 pos, Vector3 size, Material m)
+        internal static GameObject Block(string name, Vector3 pos, Vector3 size, Material m)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = name;
@@ -331,7 +412,7 @@ namespace Rishi.EditorTools
             return go;
         }
 
-        static GameObject Cylinder(string name, Vector3 pos, Vector3 scale, Material m)
+        internal static GameObject Cylinder(string name, Vector3 pos, Vector3 scale, Material m)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             go.name = name;
@@ -342,7 +423,7 @@ namespace Rishi.EditorTools
             return go;
         }
 
-        static Material Mat(string name, Color c, bool transparent = false)
+        internal static Material Mat(string name, Color c, bool transparent = false)
         {
             string path = $"{MatDir}/{name}.mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -371,7 +452,7 @@ namespace Rishi.EditorTools
             return mat;
         }
 
-        static void AddToBuildSettings(string path)
+        internal static void AddToBuildSettings(string path)
         {
             var list = new System.Collections.Generic.List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
             if (list.Exists(s => s.path == path)) return;
