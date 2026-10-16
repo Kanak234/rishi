@@ -22,6 +22,8 @@ namespace Rishi.Core
         PlayerController _pc;
         Health _hp;
         CombatSystem _combat; // M3 — na ho to combat line nahi dikhegi
+        BowCombat _bow;
+        WeaponManager _weapons;
         float _fps;
 
         void Awake()
@@ -29,6 +31,8 @@ namespace Rishi.Core
             _pc = GetComponent<PlayerController>();
             _hp = GetComponent<Health>();
             _combat = GetComponent<CombatSystem>();
+            _bow = GetComponent<BowCombat>();
+            _weapons = GetComponent<WeaponManager>();
             // Release build me debug panel nahi chahiye.
             if (!Debug.isDebugBuild) visible = false;
         }
@@ -44,14 +48,18 @@ namespace Rishi.Core
         void OnGUI()
         {
             if (!visible || _pc == null) return;
-            GUILayout.BeginArea(new Rect(12, 12, 300, 225), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(12, 12, 300, 250), GUI.skin.box);
             GUILayout.Label($"FPS: {_fps:0}   (target 60)");
             GUILayout.Label($"State: {_pc.State}");
             GUILayout.Label($"HP: {_hp.Current:0}/{_hp.Max:0}   {( _hp.IsInvincible ? "[I-FRAMES]" : "")}");
             GUILayout.Label($"Dodge cooldown: {_pc.DodgeCooldownLeft:0.00}s");
             GUILayout.Label($"Wall-run left: {_pc.WallRunTimeLeft:0.00}s");
             GUILayout.Label($"Speed: {new Vector3(_pc.Velocity.x, 0, _pc.Velocity.z).magnitude:0.0} m/s");
-            if (_combat != null)
+            if (_weapons != null)
+                GUILayout.Label($"Shastra: {_weapons.Current} (Lv {_weapons.CurrentLevel})   Q/E");
+            if (_bow != null && _bow.enabled)
+                GUILayout.Label($"Dhanush: {(_bow.IsAiming ? "AIM " : "")}{(_bow.IsCharging ? $"charge {_bow.Charge01 * 100f:0}%" : "")}");
+            else if (_combat != null)
             {
                 string atk = _combat.IsCharging ? $"Heavy charge {_combat.Charge01 * 100f:0}%"
                            : _combat.CurrentKind == AttackKind.Light ? $"Light {_combat.ComboStep}/3"

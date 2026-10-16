@@ -14,7 +14,8 @@
 //       MoveScale/ExtraVelocity/JumpLocked se attack ke time chalna rokta hai,
 //       Hurtbox.ReceiveHit() se damage deta hai. Events (AttackStarted, HitLanded)
 //       PlayerAnimator (attack clips) aur aage HUD/SFX ke liye.
-//       WeaponManager (agla M3 task) Trishul/Dhanush ke hisaab se AttackData badlega.
+//       WeaponManager: Trishul equip ho tab ye on, Dhanush par off (BowCombat on);
+//       upgrade par DamageMultiplier set karta hai.
 // GDD: light combo 3 hit, teesra dhakelta hai; heavy charge, guard todta hai;
 //      dodge (0.4 s i-frames) kabhi bhi attack cancel kar sakta hai.
 // =====================================================================
@@ -82,6 +83,10 @@ namespace Rishi.Combat
         public bool IsCharging => _charging;
         public float Charge01 => _charging ? Mathf.Clamp01(_timer / heavyMaxCharge) : 0f;
         public bool HitboxActive { get; private set; }
+        /// <summary>Busy = attack ya charge chal raha — WeaponManager is time hathiyar nahi badalta.</summary>
+        public bool IsBusy => _kind != AttackKind.None || _charging;
+        /// <summary>Upgrade ka asar (WeaponManager set karta hai): 1 = base damage.</summary>
+        public float DamageMultiplier { get; set; } = 1f;
 
         public event Action<AttackKind, int> AttackStarted; // (kind, combo step 1..3) — PlayerAnimator
         public event Action<Hurtbox, HitInfo> HitLanded;      // HUD/SFX/hit-stop ke liye
@@ -299,7 +304,7 @@ namespace Rishi.Combat
                 bool finisher = _kind == AttackKind.Light && _comboIndex == lightCombo.Length - 1;
                 var info = new HitInfo
                 {
-                    Damage = _kind == AttackKind.Heavy ? _heavyDamage : _current.damage,
+                    Damage = (_kind == AttackKind.Heavy ? _heavyDamage : _current.damage) * DamageMultiplier,
                     Direction = dir.normalized,
                     Knockback = _current.knockback,
                     GuardBreak = _kind == AttackKind.Heavy,

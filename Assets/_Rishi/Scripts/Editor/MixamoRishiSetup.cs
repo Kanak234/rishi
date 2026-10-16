@@ -18,7 +18,7 @@
 //       Rishi_Character.fbx  (zaroori — T-pose, "With Skin")
 //       Idle.fbx, Run.fbx    (zaroori — "Without Skin", Run "In Place")
 //       Walk, Jump, Fall, Roll, WallRun, Hang, Climb .fbx (optional — na ho to fallback)
-//       Attack1/2/3, HeavyCharge, Heavy .fbx (optional, M3 — na ho to attack state nahi)
+//       Attack1/2/3, HeavyCharge, Heavy, BowShoot .fbx (optional, M3 — na ho to attack state nahi)
 // =====================================================================
 using System.Collections.Generic;
 using System.IO;
@@ -72,9 +72,10 @@ namespace Rishi.EditorTools
             new ClipSpec("Attack3",     false, true),
             new ClipSpec("HeavyCharge", true,  true),
             new ClipSpec("Heavy",       false, true),
+            new ClipSpec("BowShoot",    false, true),
         };
         // Inke liye fallback nahi — galat clip (jaise Run) attack me ajeeb lagta hai.
-        static readonly string[] NoFallback = { "Attack1", "Attack2", "Attack3", "HeavyCharge", "Heavy" };
+        static readonly string[] NoFallback = { "Attack1", "Attack2", "Attack3", "HeavyCharge", "Heavy", "BowShoot" };
 
         // =================================================================
         [MenuItem("Tools/RISHI/Setup Mixamo Rishi")]

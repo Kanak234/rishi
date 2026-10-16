@@ -37,6 +37,7 @@ namespace Rishi.Player
         public const string Attack3 = "Attack3";
         public const string HeavyCharge = "HeavyCharge";
         public const string Heavy = "Heavy";
+        public const string BowShoot = "BowShoot"; // Dhanush (optional clip)
 
         public const string SpeedParam = "Speed";          // 0 = khada, 1 = full run
         public const string RollSpeedParam = "RollSpeed";  // roll clip ka playback multiplier
@@ -64,6 +65,7 @@ namespace Rishi.Player
 
         PlayerController _pc;
         CombatSystem _combat;        // optional — M3 se pehle wale scene me nahi hota
+        BowCombat _bow;              // optional — Dhanush
         Transform _model;            // Animator wala child — lean/offset isi par
         Quaternion _modelBaseRot;    // model ka original local rotation
         Vector3 _modelBasePos;
@@ -83,6 +85,7 @@ namespace Rishi.Player
         static readonly int HAttack3 = Animator.StringToHash(RishiAnim.Attack3);
         static readonly int HHeavyCharge = Animator.StringToHash(RishiAnim.HeavyCharge);
         static readonly int HHeavy = Animator.StringToHash(RishiAnim.Heavy);
+        static readonly int HBowShoot = Animator.StringToHash(RishiAnim.BowShoot);
         static readonly int PSpeed = Animator.StringToHash(RishiAnim.SpeedParam);
         static readonly int PRollSpeed = Animator.StringToHash(RishiAnim.RollSpeedParam);
         static readonly int PClimbSpeed = Animator.StringToHash(RishiAnim.ClimbSpeedParam);
@@ -92,6 +95,7 @@ namespace Rishi.Player
         {
             _pc = GetComponent<PlayerController>();
             _combat = GetComponent<CombatSystem>();
+            _bow = GetComponent<BowCombat>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
             if (animator == null)
             {
@@ -114,12 +118,14 @@ namespace Rishi.Player
         {
             if (_pc != null) _pc.StateChanged += OnStateChanged;
             if (_combat != null) { _combat.AttackStarted += OnAttackStarted; _combat.AttackEnded += OnAttackEnded; }
+            if (_bow != null) _bow.Fired += OnBowFired;
         }
 
         void OnDisable()
         {
             if (_pc != null) _pc.StateChanged -= OnStateChanged;
             if (_combat != null) { _combat.AttackStarted -= OnAttackStarted; _combat.AttackEnded -= OnAttackEnded; }
+            if (_bow != null) _bow.Fired -= OnBowFired;
         }
 
         void Start()
@@ -148,6 +154,11 @@ namespace Rishi.Player
                 if (_rising && !risingNow) animator.CrossFadeInFixedTime(HFall, 0.2f);
                 _rising = risingNow;
             }
+
+            // Teer chalane ka clip khatam → wapas idle/run (bow ka "AttackEnded" jaisa event nahi hai).
+            AnimatorStateInfo cur = animator.GetCurrentAnimatorStateInfo(0);
+            if (cur.shortNameHash == HBowShoot && cur.normalizedTime >= 1f && !animator.IsInTransition(0))
+                animator.CrossFadeInFixedTime(HLocomotion, defaultFade);
 
             // 3) Wall-run lean: deewar daayi taraf ho to body baayi taraf jhuke (pair deewar par).
             float targetLean = 0f;
@@ -209,6 +220,11 @@ namespace Rishi.Player
                 : (step == 1 ? HAttack1 : step == 2 ? HAttack2 : HAttack3);
             // Clip abhi nahi aaya (state hi nahi) to chup — combat logic animation par depend nahi karta.
             if (animator.HasState(0, h)) animator.CrossFadeInFixedTime(h, 0.05f, 0, 0f);
+        }
+
+        void OnBowFired(bool charged)
+        {
+            if (animator.HasState(0, HBowShoot)) animator.CrossFadeInFixedTime(HBowShoot, 0.05f, 0, 0f);
         }
 
         void OnAttackEnded()

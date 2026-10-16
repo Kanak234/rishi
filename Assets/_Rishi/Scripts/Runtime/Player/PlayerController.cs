@@ -88,6 +88,8 @@ namespace Rishi.Player
         public Vector3 ExtraVelocity { get; set; }
         /// <summary>true ho to Jump nahi (attack ke beech). Dodge hamesha allowed — attack cancel karta hai.</summary>
         public bool JumpLocked { get; set; }
+        /// <summary>true ho to PlayerController khud nahi ghoomta — Dhanush aim karte waqt BowCombat disha tay karta hai (strafe).</summary>
+        public bool LockFacing { get; set; }
 
         // ---------------- Internal state ----------------
         CharacterController _cc;
@@ -156,7 +158,7 @@ namespace Rishi.Player
             _velocity.x = wish.x * moveSpeed * MoveScale + ExtraVelocity.x;
             _velocity.z = wish.z * moveSpeed * MoveScale + ExtraVelocity.z;
             _velocity.y = -2f; // halka neeche dabav: slope/seedhi par chipka rahe
-            if (MoveScale > 0f) FaceDirection(wish, dt); // attack ke beech ghoomna nahi — CombatSystem swing ki disha tay karta hai
+            if (MoveScale > 0f && !LockFacing) FaceDirection(wish, dt); // attack ke beech ghoomna nahi — CombatSystem swing ki disha tay karta hai
 
             if (_input.Dodge.WasPressedThisFrame() && TryStartDodge(wish)) return;
             if (_input.Jump.WasPressedThisFrame() && !JumpLocked) { DoJump(); return; }

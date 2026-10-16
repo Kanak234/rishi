@@ -115,6 +115,7 @@ namespace Rishi.EditorTools
 
             // --- M3 combat: Rishi par CombatSystem + Hurtbox, aur akhade ke putle ---
             AddCombatTest(root, stone, sona);
+            AddWeaponTest(root, stone, sona, geru);
 
             // --- Camera ---
             var camGo = new GameObject("Main Camera");
@@ -148,6 +149,125 @@ namespace Rishi.EditorTools
             EditorSceneManager.MarkSceneDirty(rishi.scene);
             EditorSceneManager.SaveScene(rishi.scene);
             Debug.Log("[RISHI] M3 combat test ready → Play: LMB = 3-hit combo, RMB hold = heavy charge, Shift = dodge cancel.");
+        }
+
+        [MenuItem("Tools/RISHI/Add M3 Weapons Test (current scene)")]
+        public static void AddWeaponTestToOpenScene()
+        {
+            GameObject rishi = GameObject.Find("Rishi");
+            if (rishi == null) { Debug.LogError("[RISHI] Scene me 'Rishi' nahi mila."); return; }
+            AddCombatTest(rishi.transform, Mat("M_Stone", Color.gray), Mat("M_Sona", Color.yellow));
+            AddWeaponTest(rishi.transform, Mat("M_Stone", Color.gray), Mat("M_Sona", Color.yellow), Mat("M_Geru", Color.red));
+            EditorSceneManager.MarkSceneDirty(rishi.scene);
+            EditorSceneManager.SaveScene(rishi.scene);
+            Debug.Log("[RISHI] M3 weapons test ready → sone ke Dhanush ko chhuo, Q/E switch, Ctrl hold = aim, LMB teer, RMB hold = charged teer.");
+        }
+
+        static void AddWeaponTest(Transform rishi, Material stone, Material sona, Material geru)
+        {
+            // --- Rishi par BowCombat + WeaponManager ---
+            // Note: "??" nahi — editor me missing component "fake null" hota hai, ?? usse null nahi maanta.
+            var bow = rishi.GetComponent<BowCombat>();
+            if (bow == null) bow = rishi.gameObject.AddComponent<BowCombat>();
+            var bowSo = new SerializedObject(bow);
+            bowSo.FindProperty("arrowMaterial").objectReferenceValue = sona;
+            bowSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var wm = rishi.GetComponent<WeaponManager>();
+            if (wm == null) wm = rishi.gameObject.AddComponent<WeaponManager>();
+
+            // --- Haath me placeholder shastra (asli model M4/M5 me) ---
+            // Humanoid ho to daayein haath ki haddi par, warna Rishi ke daayein taraf.
+            var anim = rishi.GetComponentInChildren<Animator>();
+            Transform hand = anim != null && anim.isHuman ? anim.GetBoneTransform(HumanBodyBones.RightHand) : null;
+            Transform holder = hand != null ? hand : rishi;
+            GameObject trishul = FindOrBuild(holder, "Weapon_Trishul", () => BuildTrishul(sona, geru));
+            GameObject dhanush = FindOrBuild(holder, "Weapon_Dhanush", () => BuildDhanush(geru));
+            if (hand == null)
+            {
+                trishul.transform.localPosition = new Vector3(0.45f, 1.0f, 0.1f);
+                dhanush.transform.localPosition = new Vector3(0.45f, 1.1f, 0.1f);
+            }
+
+            var wmSo = new SerializedObject(wm);
+            var slots = wmSo.FindProperty("slots");
+            for (int i = 0; i < slots.arraySize; i++)
+            {
+                var slot = slots.GetArrayElementAtIndex(i);
+                bool isTrishul = slot.FindPropertyRelative("id").enumValueIndex == (int)WeaponId.Trishul;
+                slot.FindPropertyRelative("visual").objectReferenceValue = isTrishul ? trishul : dhanush;
+            }
+            wmSo.ApplyModifiedPropertiesWithoutUndo();
+            dhanush.SetActive(false); // shuru me sirf Trishul
+
+            // --- Dhanush pickup (GDD: level ke beech milta hai) ---
+            if (GameObject.Find("Pickup_Dhanush") == null)
+            {
+                var p = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                p.name = "Pickup_Dhanush";
+                p.transform.position = new Vector3(5f, 1f, -3f);
+                p.transform.localScale = new Vector3(0.3f, 1.2f, 0.3f);
+                p.GetComponent<MeshRenderer>().sharedMaterial = sona;
+                p.GetComponent<Collider>().isTrigger = true;
+                p.AddComponent<WeaponPickup>();
+            }
+
+            // --- Door ka dummy (teer test, ~12 m) ---
+            if (GameObject.Find("Training_Dummy_Far") == null)
+            {
+                var d = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                d.name = "Training_Dummy_Far";
+                d.transform.position = new Vector3(8f, 1f, -9f);
+                d.transform.localScale = new Vector3(0.7f, 1f, 0.7f);
+                d.GetComponent<MeshRenderer>().sharedMaterial = stone;
+                d.AddComponent<Health>();
+                d.AddComponent<Hurtbox>();
+                d.AddComponent<TrainingDummy>();
+            }
+        }
+
+        static GameObject FindOrBuild(Transform parent, string name, System.Func<GameObject> build)
+        {
+            Transform t = parent.Find(name);
+            if (t != null) return t.gameObject; // dobara chalane par duplicate nahi
+            GameObject go = build();
+            go.name = name;
+            go.transform.SetParent(parent, false);
+            return go;
+        }
+
+        // Trishul: lamba danda + upar teen nok. Colliders hata do — hathiyar physics me na takraye.
+        static GameObject BuildTrishul(Material sona, Material geru)
+        {
+            var root = new GameObject("Weapon_Trishul");
+            Part(root.transform, PrimitiveType.Cylinder, new Vector3(0f, 0.3f, 0f), new Vector3(0.035f, 0.75f, 0.035f), geru);
+            Part(root.transform, PrimitiveType.Cube, new Vector3(0f, 1.15f, 0f), new Vector3(0.03f, 0.3f, 0.03f), sona);
+            Part(root.transform, PrimitiveType.Cube, new Vector3(-0.09f, 1.08f, 0f), new Vector3(0.03f, 0.18f, 0.03f), sona);
+            Part(root.transform, PrimitiveType.Cube, new Vector3(0.09f, 1.08f, 0f), new Vector3(0.03f, 0.18f, 0.03f), sona);
+            Part(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.99f, 0f), new Vector3(0.22f, 0.03f, 0.03f), sona);
+            return root;
+        }
+
+        // Dhanush: patla lamba dhanush (do jhuke hisse) — placeholder.
+        static GameObject BuildDhanush(Material geru)
+        {
+            var root = new GameObject("Weapon_Dhanush");
+            var top = Part(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.3f, -0.05f), new Vector3(0.03f, 0.62f, 0.03f), geru);
+            top.localRotation = Quaternion.Euler(-15f, 0f, 0f);
+            var bottom = Part(root.transform, PrimitiveType.Cube, new Vector3(0f, -0.3f, -0.05f), new Vector3(0.03f, 0.62f, 0.03f), geru);
+            bottom.localRotation = Quaternion.Euler(15f, 0f, 0f);
+            return root;
+        }
+
+        static Transform Part(Transform parent, PrimitiveType type, Vector3 pos, Vector3 scale, Material m)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            Object.DestroyImmediate(go.GetComponent<Collider>());
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = pos;
+            go.transform.localScale = scale;
+            go.GetComponent<MeshRenderer>().sharedMaterial = m;
+            return go.transform;
         }
 
         static void AddCombatTest(Transform rishi, Material stone, Material sona)
