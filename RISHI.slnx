@@ -1,4 +1,6 @@
 ﻿<Solution>
+  <Project Path="Rishi.Runtime.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Rishi.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

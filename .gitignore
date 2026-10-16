@@ -36,3 +36,11 @@ crashlytics-build.properties
 # Secrets — kabhi commit nahi
 .env
 *.keystore
+
+# Agent instructions file — local only, repo me nahi
+/[Cc][Ll][Aa][Uu][Dd][Ee].md
+
+# Temporary placeholder character (Unity Starter Assets) — license ki wajah se repo me nahi.
+# Mixamo files aane par ye folder hat jayega. Clone karne wale: Tools ▸ RISHI ▸ Setup Mixamo Rishi.
+/Assets/ThirdParty/StarterAssets/
+/Assets/ThirdParty/StarterAssets.meta

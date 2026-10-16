@@ -12,8 +12,9 @@
 //       action game me physics ka "phisalna" nahi, exact control chahiye.
 // AAGE: RishiInput se input aata hai, IsoCameraFollow ki direction se WASD
 //       screen-relative banta hai, Health ke "Damaged" event se ledge par
-//       hit lagne par Rishi girta hai. "State" property ko M2 ke Mixamo
-//       animation script aur DebugHud padhte hain.
+//       hit lagne par Rishi girta hai. "State"/"StateChanged" ko PlayerAnimator
+//       (Mixamo animations) aur DebugHud padhte hain. CombatSystem (M3) MoveScale/
+//       ExtraVelocity/JumpLocked se attack ke time movement rokta/lunge karta hai.
 // GDD NUMBERS: dodge 0.4 s i-frames, 1.0 s cooldown; wall-run max 2 s.
 // =====================================================================
 using System;
@@ -71,6 +72,22 @@ namespace Rishi.Player
         public float DodgeCooldownLeft => Mathf.Max(0f, _nextDodgeTime - Time.time);
         public float WallRunTimeLeft => State == MoveState.WallRunning ? Mathf.Max(0f, wallRunMaxTime - _stateTimer) : 0f;
         public event Action<MoveState, MoveState> StateChanged; // (purana, naya) — animation script ke liye
+        // PlayerAnimator ko ye numbers chahiye: run blend normalize karna, roll/climb clip ki
+        // speed state ki length se milana, aur wall-run me kis taraf jhukna hai.
+        public float MoveSpeed => moveSpeed;
+        public float DodgeDuration => dodgeDuration;
+        public float ClimbDuration => climbDuration;
+        public Vector3 WallNormal => _wallNormal;
+
+        // ---------------- Combat hooks (M3) ----------------
+        // CombatSystem attack ke time ye set karta hai. PlayerController ko combat ka
+        // pata nahi — bas "kitna chal sakte ho" aur "kitna dhakka" milta hai.
+        /// <summary>Zameen par input movement ka multiplier (1 = normal, 0 = attack me khade).</summary>
+        public float MoveScale { get; set; } = 1f;
+        /// <summary>Attack lunge jaisi extra horizontal speed (world space), zameen par lagti hai.</summary>
+        public Vector3 ExtraVelocity { get; set; }
+        /// <summary>true ho to Jump nahi (attack ke beech). Dodge hamesha allowed — attack cancel karta hai.</summary>
+        public bool JumpLocked { get; set; }
 
         // ---------------- Internal state ----------------
         CharacterController _cc;
@@ -135,13 +152,14 @@ namespace Rishi.Player
             Vector3 wish = CameraRelativeInput();
 
             // Zameen par seedha speed set (instant, responsive feel).
-            _velocity.x = wish.x * moveSpeed;
-            _velocity.z = wish.z * moveSpeed;
+            // MoveScale/ExtraVelocity = CombatSystem ka hissa (attack me rukna, lunge).
+            _velocity.x = wish.x * moveSpeed * MoveScale + ExtraVelocity.x;
+            _velocity.z = wish.z * moveSpeed * MoveScale + ExtraVelocity.z;
             _velocity.y = -2f; // halka neeche dabav: slope/seedhi par chipka rahe
-            FaceDirection(wish, dt);
+            if (MoveScale > 0f) FaceDirection(wish, dt); // attack ke beech ghoomna nahi — CombatSystem swing ki disha tay karta hai
 
             if (_input.Dodge.WasPressedThisFrame() && TryStartDodge(wish)) return;
-            if (_input.Jump.WasPressedThisFrame()) { DoJump(); return; }
+            if (_input.Jump.WasPressedThisFrame() && !JumpLocked) { DoJump(); return; }
 
             _cc.Move(_velocity * dt);
 

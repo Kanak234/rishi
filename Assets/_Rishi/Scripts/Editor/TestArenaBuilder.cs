@@ -7,10 +7,10 @@
 //       aadha ghanta; ye menu ek click me banata hai, har baar same.
 // KYA:  Menu: Tools ▸ RISHI ▸ Build M2 Test Arena
 //       Naya scene banata hai, materials (URP Lit) save karta hai, Rishi
-//       (capsule placeholder) + camera + light + obstacles daalta hai, aur
+//       (Mixamo model, ya na ho to capsule) + camera + light + obstacles daalta hai, aur
 //       scene ko Build Settings me add karta hai.
-// AAGE: Play dabao aur PlayerController test karo. M2 ke agle step me
-//       capsule ki jagah Mixamo character aayega; M4 me asli Rajrappa level.
+// AAGE: Play dabao aur PlayerController test karo. Mixamo body
+//       MixamoRishiSetup.TryAttachModel() lagata hai; M4 me asli Rajrappa level.
 // =====================================================================
 using System.IO;
 using UnityEditor;
@@ -94,28 +94,12 @@ namespace Rishi.EditorTools
             smoke.GetComponent<Collider>().isTrigger = true;
             smoke.AddComponent<DamageZone>();
 
-            // --- Rishi (placeholder capsule — Mixamo model M2 ke agle step me) ---
+            // --- Rishi ---
             // Pivot pairon par chahiye (PlayerController ke rays pairon se naapte hain),
-            // isliye khaali "Rishi" root banaya aur capsule mesh ko child bana kar 1 m upar rakha.
+            // isliye khaali "Rishi" root banaya; dikhne wala body uska child hai.
             var root = new GameObject("Rishi").transform;
             root.position = new Vector3(0f, 0.05f, 0f);
             root.tag = "Player";
-
-            var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            capsule.name = "Body_Placeholder";
-            Object.DestroyImmediate(capsule.GetComponent<CapsuleCollider>()); // CharacterController apna collider laata hai
-            capsule.GetComponent<MeshRenderer>().sharedMaterial = sona;
-            var body = capsule.transform;
-            body.SetParent(root, false);
-            body.localPosition = new Vector3(0f, 1f, 0f);
-            // "Naak" — kis taraf dekh raha hai wo dikhe
-            var nose = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            nose.name = "Facing";
-            Object.DestroyImmediate(nose.GetComponent<BoxCollider>());
-            nose.transform.SetParent(body, false);
-            nose.transform.localPosition = new Vector3(0f, 0.5f, 0.45f);
-            nose.transform.localScale = new Vector3(0.25f, 0.15f, 0.3f);
-            nose.GetComponent<MeshRenderer>().sharedMaterial = geru;
 
             var cc = root.gameObject.AddComponent<CharacterController>();
             cc.height = 2f; cc.radius = 0.4f; cc.center = new Vector3(0f, 1f, 0f);
@@ -124,6 +108,13 @@ namespace Rishi.EditorTools
             root.gameObject.AddComponent<Health>();
             root.gameObject.AddComponent<PlayerController>();
             root.gameObject.AddComponent<DebugHud>();
+
+            // Mixamo model + Animator ready ho (Tools ▸ RISHI ▸ Setup Mixamo Rishi) to wahi lagao,
+            // warna capsule placeholder — arena bina Mixamo files ke bhi ban sake.
+            if (!MixamoRishiSetup.TryAttachModel(root)) AddCapsuleBody(root, sona, geru);
+
+            // --- M3 combat: Rishi par CombatSystem + Hurtbox, aur akhade ke putle ---
+            AddCombatTest(root, stone, sona);
 
             // --- Camera ---
             var camGo = new GameObject("Main Camera");
@@ -147,7 +138,68 @@ namespace Rishi.EditorTools
             Debug.Log("[RISHI] M2 Test Arena ready → Play dabao. WASD, Space jump, Shift dodge, F/Space ledge climb, Esc pause, F1 debug.");
         }
 
+        /// <summary>Khule scene me combat test cheezein jodo (arena dobara banaye bina).</summary>
+        [MenuItem("Tools/RISHI/Add M3 Combat Test (current scene)")]
+        public static void AddCombatTestToOpenScene()
+        {
+            GameObject rishi = GameObject.Find("Rishi");
+            if (rishi == null) { Debug.LogError("[RISHI] Scene me 'Rishi' nahi mila."); return; }
+            AddCombatTest(rishi.transform, Mat("M_Stone", Color.gray), Mat("M_Sona", Color.yellow));
+            EditorSceneManager.MarkSceneDirty(rishi.scene);
+            EditorSceneManager.SaveScene(rishi.scene);
+            Debug.Log("[RISHI] M3 combat test ready → Play: LMB = 3-hit combo, RMB hold = heavy charge, Shift = dodge cancel.");
+        }
+
+        static void AddCombatTest(Transform rishi, Material stone, Material sona)
+        {
+            // Rishi: CombatSystem (hitbox) + Hurtbox (aage asur ke vaar ke liye, Team Player).
+            if (rishi.GetComponent<CombatSystem>() == null) rishi.gameObject.AddComponent<CombatSystem>();
+            if (rishi.GetComponent<Hurtbox>() == null)
+            {
+                var hb = rishi.gameObject.AddComponent<Hurtbox>();
+                var so = new SerializedObject(hb);
+                so.FindProperty("team").enumValueIndex = (int)Team.Player;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            // Teen putle spawn ke paas, ek line me — combo ke beech disha badal ke test karo.
+            for (int i = 0; i < 3; i++)
+            {
+                string n = $"Training_Dummy_{i + 1}";
+                if (GameObject.Find(n) != null) continue; // dobara chalane par duplicate nahi
+                var d = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                d.name = n;
+                d.transform.position = new Vector3(-3f + i * 3f, 1f, 5f);
+                d.transform.localScale = new Vector3(0.7f, 1f, 0.7f); // ~2 m lamba, Rishi jitna
+                d.GetComponent<MeshRenderer>().sharedMaterial = i == 1 ? sona : stone;
+                d.AddComponent<Health>();      // default 100 HP
+                d.AddComponent<Hurtbox>();     // default Team.Asur
+                d.AddComponent<TrainingDummy>();
+                // Static nahi — dummy hit par hilta hai.
+            }
+        }
+
         // ---------------- helpers ----------------
+        static void AddCapsuleBody(Transform root, Material sona, Material geru)
+        {
+            // Capsule mesh child ko 1 m upar rakha (pivot pairon par rahe).
+            var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            capsule.name = "Body_Placeholder";
+            Object.DestroyImmediate(capsule.GetComponent<CapsuleCollider>()); // CharacterController apna collider laata hai
+            capsule.GetComponent<MeshRenderer>().sharedMaterial = sona;
+            var body = capsule.transform;
+            body.SetParent(root, false);
+            body.localPosition = new Vector3(0f, 1f, 0f);
+            // "Naak" — kis taraf dekh raha hai wo dikhe
+            var nose = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            nose.name = "Facing";
+            Object.DestroyImmediate(nose.GetComponent<BoxCollider>());
+            nose.transform.SetParent(body, false);
+            nose.transform.localPosition = new Vector3(0f, 0.5f, 0.45f);
+            nose.transform.localScale = new Vector3(0.25f, 0.15f, 0.3f);
+            nose.GetComponent<MeshRenderer>().sharedMaterial = geru;
+        }
+
         static GameObject Block(string name, Vector3 pos, Vector3 size, Material m)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
