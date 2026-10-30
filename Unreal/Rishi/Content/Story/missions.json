@@ -1,0 +1,212 @@
+{
+  "source_commit": "48defa49243ced8d0a5823104ed00e4de7fc79b3",
+  "missions": [
+    {
+      "Level": "Damodar Gaon",
+      "Title": "Navami ki Raat",
+      "Goal": "Gaon ko Chhaya-bhooton se bachao, ghat tak pahuncho",
+      "LevelNumber": 1,
+      "id": 1,
+      "Intro": [
+        {
+          "painting": "Village",
+          "line": "Damodar ke kinare ek chhota gaon. Navami ki raat — har ghar me deepak, har aangan me naach."
+        },
+        {
+          "painting": "TamasRises",
+          "line": "Usi raat nadi ke neeche ke andhkar se Tamasur jaaga. Uski chhaayaayein gaon ki taraf badhne lagin."
+        },
+        {
+          "painting": "Journey",
+          "line": "Acharya Vasudev ka shishya Rishi, guru ka diya Trishul uthata hai. \"Pehle gaon, phir kuch aur.\""
+        }
+      ],
+      "BossIntro": [],
+      "Outro": [
+        {
+          "painting": "GuruTaken",
+          "line": "Ghat par pahunch kar Rishi ne dekha — Tamas ki chhaaya Acharya Vasudev ko utha le ja rahi thi."
+        },
+        {
+          "painting": "Journey",
+          "line": "Guru ki aakhri awaaz: \"Rajrappa… jyoti bachao…\" Rishi sangam ki or chal pada."
+        }
+      ]
+    },
+    {
+      "Level": "Rajrappa",
+      "Title": "Sangam ki Chattanein",
+      "Goal": "Damodar-Bhairavi sangam ki chattanein paar karo",
+      "LevelNumber": 2,
+      "id": 2,
+      "Intro": [
+        {
+          "painting": "Journey",
+          "line": "Rajrappa — jahan Bhairavi, Damodar se milti hai. Par raasta nadi ki fisalti chattanon se hokar jaata hai."
+        }
+      ],
+      "BossIntro": [],
+      "Outro": [
+        {
+          "painting": "Mandir",
+          "line": "Chattanon ke paar mandir dikha. Uski akhand jyoti ab bas ek kaanpti lau thi."
+        }
+      ]
+    },
+    {
+      "Level": "Rajrappa",
+      "Title": "Chhinnamastika ka Aangan",
+      "Goal": "Mandir ke aangan me Dhanush dhoondho, jyoti bachao",
+      "LevelNumber": 2,
+      "id": 3,
+      "Intro": [
+        {
+          "painting": "Mandir",
+          "line": "Mandir ke aangan me sona chamak raha tha — kisi purane yoddha ka Dhanush."
+        }
+      ],
+      "BossIntro": [
+        {
+          "painting": "Andhvir",
+          "line": "Wahan Tamasur ka senapati Andhvir khada tha — bhari gada, aur aankhon me sirf andhkar."
+        }
+      ],
+      "Outro": [
+        {
+          "painting": "JyotiReturns",
+          "line": "Andhvir gira, aur Rajrappa ki jyoti phir jal uthi."
+        },
+        {
+          "painting": "Kashi",
+          "line": "Girte hue usne kaha: \"Agla deep Kashi ka bujhega… aur tera guru Ellora ki gufaon me hai.\""
+        }
+      ]
+    },
+    {
+      "Level": "Kashi",
+      "Title": "Deepon ki Seedhiyan",
+      "Goal": "Ghaton ki seedhiyan chadho, aasmaan ke Vayu-pishach giraao",
+      "LevelNumber": 3,
+      "id": 4,
+      "Intro": [
+        {
+          "painting": "Kashi",
+          "line": "Kashi ke ghat — hazaaron deepon wali seedhiyan. Par aaj aasmaan Vayu-pishachon se kaala tha."
+        }
+      ],
+      "BossIntro": [],
+      "Outro": [
+        {
+          "painting": "Aarti",
+          "line": "Seedhiyon ke upar maha-aarti ke teen bade deep bujhe pade the. Aarti ruki, to Kashi andhere me doob jaayegi."
+        }
+      ]
+    },
+    {
+      "Level": "Kashi",
+      "Title": "Ganga Aarti ki Raksha",
+      "Goal": "Aarti ke teeno maha-deep jalao — asur rokne aayenge",
+      "LevelNumber": 3,
+      "id": 5,
+      "Intro": [
+        {
+          "painting": "Aarti",
+          "line": "Rishi ko teeno maha-deep jalane the — aur Tamas ki sena use rokne ko taiyaar thi."
+        }
+      ],
+      "BossIntro": [],
+      "Outro": [
+        {
+          "painting": "Aarti",
+          "line": "Teeno deep jale, aur Ganga par aarti ki roshni phail gayi."
+        },
+        {
+          "painting": "Hampi",
+          "line": "Ek naavik ne bataya: dakshin me Hampi ke khandaharon me patthar ke asur jama ho rahe hain — Shilaasur ki sena."
+        }
+      ]
+    },
+    {
+      "Level": "Hampi",
+      "Title": "Vijayanagara ke Khandahar",
+      "Goal": "Khandaharon se raasta banao, Shilaasur ko roko",
+      "LevelNumber": 4,
+      "id": 6,
+      "Intro": [
+        {
+          "painting": "Hampi",
+          "line": "Vijayanagara ke khandahar — pathar ka rath, toote mandap. Har chattan ke peeche Pashan-rakshas."
+        }
+      ],
+      "BossIntro": [
+        {
+          "painting": "Shilaasur",
+          "line": "Rath ke saamne Shilaasur utha — Tamasur ka doosra senapati, jiska sharir hi patthar hai."
+        }
+      ],
+      "Outro": [
+        {
+          "painting": "Shilaasur",
+          "line": "Shilaasur toota. Uske patthar par Ellora ki gufaon ka naksha khuda tha."
+        },
+        {
+          "painting": "Ellora",
+          "line": "Rishi samajh gaya — guru wahin hain, Kailasa ki gufaon me."
+        }
+      ]
+    },
+    {
+      "Level": "Ellora",
+      "Title": "Kailasa ki Gufayein",
+      "Goal": "Gufaon ke teen deep jalao, guru tak pahuncho",
+      "LevelNumber": 5,
+      "id": 7,
+      "Intro": [
+        {
+          "painting": "Ellora",
+          "line": "Ellora — ek hi pahad se kaata gaya Kailasa mandir. Andar ki gufaayein Tamas se bhari thin."
+        }
+      ],
+      "BossIntro": [],
+      "Outro": [
+        {
+          "painting": "GuruFreed",
+          "line": "Aakhri gufa me Acharya Vasudev the. Teeno deep jalte hi Tamas ki zanjeerein toot gayin."
+        },
+        {
+          "painting": "TamasLok",
+          "line": "Guru bole: \"Tamasur ka hriday wahin hai jahan se wo jaaga — Damodar ke neeche. Wahan jaana hoga.\""
+        }
+      ]
+    },
+    {
+      "Level": "Tamas-lok",
+      "Title": "Damodar ke Neeche",
+      "Goal": "Andhkar ke lok me utro, Tamasur ka saamna karo",
+      "LevelNumber": 6,
+      "id": 8,
+      "Intro": [
+        {
+          "painting": "TamasLok",
+          "line": "Nadi ke neeche ek doosra lok — na din, na raat, sirf Tamas. Rishi guru ka ashirvad le kar utra."
+        }
+      ],
+      "BossIntro": [
+        {
+          "painting": "TamasRises",
+          "line": "Aur wahan, apne andhkar ke singhasan par, Tamasur ne aankhein kholin."
+        }
+      ],
+      "Outro": [
+        {
+          "painting": "Dawn",
+          "line": "Tamasur ka andhkar bikhar gaya. Ek-ek karke Bharat ke saare teerthon ki jyoti laut aayi."
+        },
+        {
+          "painting": "Village",
+          "line": "Navami ki subah gaon laut kar Rishi ne dekha — budhe chitrakar deewar par uski gaatha ka aakhri chitra bana rahe the."
+        }
+      ]
+    }
+  ]
+}

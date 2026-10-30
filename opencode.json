@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "rishi_unreal": {
+        "type": "local",
+        "command": [
+          "/home/kanak/Documents/Codex/2026-10-24/kanak-kanak-z790-ud-ax-kanak1-2/outputs/rishi-workspace/rishi/Tools/UnrealMCP/.venv/bin/python",
+          "/home/kanak/Documents/Codex/2026-10-24/kanak-kanak-z790-ud-ax-kanak1-2/outputs/rishi-workspace/rishi/Tools/UnrealMCP/server.py"
+        ]
+      }
+    }
+  },
+  "model": "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+}

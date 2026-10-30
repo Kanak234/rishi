@@ -1,0 +1,30 @@
+{
+  "tools": [
+    "rishi_status",
+    "rishi_canon",
+    "rishi_list_actors",
+    "rishi_spawn_actor",
+    "rishi_set_actor_location",
+    "rishi_save_level"
+  ],
+  "status": {
+    "project": "/home/kanak/Documents/Codex/2026-10-24/kanak-kanak-z790-ud-ax-kanak1-2/outputs/rishi-workspace/rishi/Unreal/Rishi/Rishi.uproject",
+    "repository": "/home/kanak/Documents/Codex/2026-10-24/kanak-kanak-z790-ud-ax-kanak1-2/outputs/rishi-workspace/rishi",
+    "canon": {
+      "ok": true,
+      "source_commit": "48defa49243ced8d0a5823104ed00e4de7fc79b3",
+      "verified_files": 12
+    },
+    "editor": {
+      "time": 1792871892.630099,
+      "pid": 57,
+      "project": "/home/kanak/Documents/Codex/2026-10-24/kanak-kanak-z790-ud-ax-kanak1-2/outputs/rishi-workspace/rishi/Unreal/Rishi/Rishi.uproject",
+      "engine": "5.8.4-58902052+++UE5+Release-5.8",
+      "connected": true
+    },
+    "game_rebuild": "project shell; gameplay migration pending"
+  },
+  "missions": 8,
+  "invalid_mission_rejected": true,
+  "live_actor_inspection_ok": true
+}

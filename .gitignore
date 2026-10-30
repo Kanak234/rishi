@@ -45,3 +45,12 @@ crashlytics-build.properties
 /Assets/ThirdParty/StarterAssets/
 /Assets/ThirdParty/StarterAssets.meta
 mono_crash.*
+
+# Unreal migration and local MCP runtime
+Tools/UnrealMCP/.venv/
+**/__pycache__/
+Unreal/Rishi/Saved/
+Unreal/Rishi/Intermediate/
+Unreal/Rishi/DerivedDataCache/
+Unreal/Rishi/Binaries/
+.local-runtime/

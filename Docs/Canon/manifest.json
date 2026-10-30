@@ -1,0 +1,29 @@
+{
+  "source_commit": "48defa49243ced8d0a5823104ed00e4de7fc79b3",
+  "files": {
+    "README.md": {
+      "sha256": "979c0cd1c5faa0440cd17a985e24057618ec91b9747b4356ecd15ee88ebbc603",
+      "snapshot": "Docs/Canon/README.md"
+    },
+    "Assets/_Rishi/Scripts/Runtime/World/Missions.cs": {
+      "sha256": "093a696c101b7091ae731c58c976352d242b6a7c0146aa59132ffa05d37b8c99",
+      "snapshot": "Docs/Canon/Assets___Rishi__Scripts__Runtime__World__Missions.cs"
+    },
+    "Assets/_Rishi/Scripts/Runtime/UI/StoryCutscene.cs": {
+      "sha256": "2b027fa167c42c60833a803bd5f2b5cf7cbb508afa59a10270353cbfa7eb8fd3",
+      "snapshot": "Docs/Canon/Assets___Rishi__Scripts__Runtime__UI__StoryCutscene.cs"
+    },
+    "Assets/_Rishi/Scripts/Runtime/UI/SohraiPainter.cs": {
+      "sha256": "47ed9dac91e7d1c4891c32107e73fbd4c8d2513c2ffb195115814a62f1442067",
+      "snapshot": "Docs/Canon/Assets___Rishi__Scripts__Runtime__UI__SohraiPainter.cs"
+    },
+    "Assets/_Rishi/Scripts/Runtime/UI/RishiStyle.cs": {
+      "sha256": "3d1b8a3d73a9c598476f87e64ea1ba6f6638abc424913461d1776c94d0486597",
+      "snapshot": "Docs/Canon/Assets___Rishi__Scripts__Runtime__UI__RishiStyle.cs"
+    },
+    "Unreal/Rishi/Content/Story/missions.json": {
+      "sha256": "2f2b20f2c63fbe276a41e2076291e1cf1c293a1720ff9a028ca03d2e9f532f9b",
+      "snapshot": "Docs/Canon/missions.json"
+    }
+  }
+}
